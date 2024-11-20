@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import { CognitoJwtVerifier } from "aws-jwt-verify";
 
 type AsyncHandler = (
   req: Request,
@@ -11,16 +12,31 @@ export const asyncHandler =
     Promise.resolve(fn(req, res, next)).catch(next);
   };
 
+const verifier = CognitoJwtVerifier.create({
+  userPoolId: "ap-south-1_00TLX4cE3", // e.g., "us-east-1_XXXXXXXX"
+  tokenUse: "id", // or "access"
+  clientId: "144lgpoo1vu53ctca5be5j6hvh", // e.g., "25s3j2xs..."
+  // Optional: If you want to verify specific token claims
+  // customJwtCheck: ({ payload }) => {
+  //   if (payload.sub === undefined) {
+  //     throw new Error("Claim 'sub' is required!");
+  //   }
+  // },
+});
+
 export const authMiddleware = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const token = req.headers.authorization?.split(" ")[1];
+    const authHeader = req.headers.authorization;
 
-    if (!token) {
-      return res.status(401).json({ message: "Not authorized, no token" });
+    if (!authHeader) {
+      return res.status(401).json({ message: "No token provided" });
     }
+    const token = authHeader.split(" ")[1];
+    const payload = await verifier.verify(token);
+    console.log("payload in middleware", payload);
+    // Add the verified payload to the request object for use in route handlers
+    // req.user = payload;
 
-    // const userData = await verifyToken(token);
-    // console.log("middleware got the user data", userData);
     next();
   }
 );
