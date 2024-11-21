@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { LogIn, UserPlus, Lock, KeyRound, AlertCircle } from "lucide-react";
-import { confirmSignUp } from "aws-amplify/auth";
+import { confirmSignUp, signInWithRedirect } from "aws-amplify/auth";
 import { useAuth } from "../context/AuthContext";
 
 export const AuthForm: React.FC = () => {
@@ -112,6 +112,39 @@ export const AuthForm: React.FC = () => {
         </button>
       </form>
     </>
+  );
+
+  const handleGoogleSignIn = async () => {
+    try {
+      await signInWithRedirect({
+        provider: {
+          custom: "google",
+        },
+      });
+    } catch (error) {
+      console.error("Detailed Google Sign-In Error:", error);
+      // More detailed error logging
+      if (error instanceof Error) {
+        setError(`Social Login Failed: ${error.message}`);
+      }
+    }
+  };
+
+  const renderSocialSignIn = () => (
+    <div className="mt-6">
+      <button
+        onClick={handleGoogleSignIn}
+        className="w-full flex justify-center items-center gap-2 py-2 px-4 border border-transparent rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+        <img
+          src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1024px-Google_%22G%22_logo.svg.png"
+          alt="Google logo"
+          height={20}
+          style={{ marginLeft: "5px", marginRight: "5px" }}
+          className="w-5 h-5"
+        />
+        Sign In with Google
+      </button>
+    </div>
   );
 
   const renderAuthForm = () => (
@@ -229,6 +262,10 @@ export const AuthForm: React.FC = () => {
         )}
 
         {showConfirmation ? renderConfirmationForm() : renderAuthForm()}
+
+        <br />
+        <br />
+        {renderSocialSignIn()}
       </div>
     </div>
   );

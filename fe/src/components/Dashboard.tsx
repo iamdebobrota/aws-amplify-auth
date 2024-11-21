@@ -2,34 +2,36 @@ import React, { useEffect, useState } from "react";
 import { LogOut, User } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { fetchAuthSession } from "aws-amplify/auth";
+import axios from "axios";
+const BE_URL = "http://localhost:8080";
 
 export const Dashboard: React.FC = () => {
-  const { user, signOut } = useAuth();
-  console.log(user);
-  const [token, setToken] = useState("");
+  const { user, signOut, token } = useAuth();
+  const [userData, setUserData] = useState<any>(null);
 
-  const getCurrentToken = async () => {
-    try {
-      const { tokens } = await fetchAuthSession();
-      const idToken = tokens?.idToken?.toString();
-
-      return idToken;
-    } catch (error) {
-      console.error("Error getting token:", error);
-      throw error;
-    }
+  const handleGetUserData = async () => {
+    axios
+      .get(`${BE_URL}/api/auth/me`, {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token.accessToken}`,
+          "x-auth-type": "cognito",
+        },
+      })
+      .then((response) => {
+        console.log("response ", response);
+        setUserData(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   };
 
   useEffect(() => {
-    getCurrentToken()
-      .then((t: any) => {
-        setToken(t);
-      })
-      .catch((e: any) => {
-        console.log(e);
-      });
+    handleGetUserData();
   }, [user]);
-  console.log("Token=> ", token);
+  console.log("userData", userData);
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -49,6 +51,16 @@ export const Dashboard: React.FC = () => {
                   <LogOut className="w-4 h-4 mr-2" />
                   Sign Out
                 </button>
+              </div>
+              <div>
+                Token: {"    "}
+                <p style={{ color: "red", margin: "10px" }}>
+                  <b> Id token:</b> {token.idToken ? token.idToken : ""}
+                </p>
+                <p style={{ color: "green", margin: "10px" }}>
+                  <b>Access token:</b>{" "}
+                  {token.accessToken ? token.accessToken : ""}
+                </p>
               </div>
             </div>
           </div>

@@ -5,14 +5,18 @@ import {
   signOut,
   getCurrentUser,
   type SignUpInput,
+  fetchAuthSession,
 } from "aws-amplify/auth";
 import { AuthContextType, AuthState } from "../types/auth";
+import axios from "axios";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
+  const [token, setToken] = useState({ idToken: "", accessToken: "" });
+
   const [authState, setAuthState] = useState<AuthState>({
     isAuthenticated: false,
     user: null,
@@ -30,6 +34,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       setAuthState({ isAuthenticated: false, user: null, loading: false });
     }
   };
+  const getCurrentToken = async () => {
+    try {
+      const { tokens } = await fetchAuthSession();
+      const accessToken = tokens?.accessToken.toString();
+
+      const idToken = tokens?.idToken?.toString();
+
+      return { idToken: idToken, accessToken: accessToken };
+    } catch (error) {
+      console.error("Error getting token:", error);
+      throw error;
+    }
+  };
+
+  useEffect(() => {
+    getCurrentToken()
+      .then((t: { idToken?: string; accessToken?: string }) => {
+        setToken(t);
+      })
+      .catch((e: Error) => {
+        console.log(e);
+      });
+  }, []);
 
   const handleSignIn = async (username: string, password: string) => {
     try {
@@ -92,6 +119,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         signIn: handleSignIn,
         signUp: handleSignUp,
         signOut: handleSignOut,
+        token,
       }}>
       {children}
     </AuthContext.Provider>
