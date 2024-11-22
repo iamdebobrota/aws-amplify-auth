@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { LogOut, User } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
-import { fetchAuthSession } from "aws-amplify/auth";
 import axios from "axios";
 const BE_URL = "http://localhost:8080";
 
@@ -52,7 +51,7 @@ export const Dashboard: React.FC = () => {
                   Sign Out
                 </button>
               </div>
-              <div>
+              <div style={{width: '50%', background: "lightBlue", overflow: "scroll"}}>
                 Token: {"    "}
                 <p style={{ color: "red", margin: "10px" }}>
                   <b> Id token:</b> {token.idToken ? token.idToken : ""}

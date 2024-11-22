@@ -8,7 +8,6 @@ import {
   fetchAuthSession,
 } from "aws-amplify/auth";
 import { AuthContextType, AuthState } from "../types/auth";
-import axios from "axios";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -51,7 +50,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     getCurrentToken()
       .then((t: { idToken?: string; accessToken?: string }) => {
-        setToken(t);
+        setToken({
+          idToken: t.idToken ?? "",
+          accessToken: t.accessToken ?? "",
+        });
       })
       .catch((e: Error) => {
         console.log(e);
