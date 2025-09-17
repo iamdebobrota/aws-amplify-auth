@@ -24,16 +24,21 @@ Amplify.configure({
       },
       // userPoolId: "ap-south-1_00TLX4cE3",
       // userPoolClientId: "144lgpoo1vu53ctca5be5j6hvh",
+      // dev
       userPoolId: "ap-south-1_E5p90O5a2",
       userPoolClientId: "9f60j7i208krcc99d0dbc3qig",
+      // prod
+      // userPoolId: "ap-south-1_PXCJSUgO9",
+      // userPoolClientId: "2geql1eegmbehk2q47ho3kghao",
+      // alpha
+      // userPoolId: "ap-south-1_PXCJSUgO9",
+      // userPoolClientId: "2geql1eegmbehk2q47ho3kghao",
       signUpVerificationMethod: "code",
     },
   },
 });
 
 // client id - 2sbh33a9n37q9of2vvtei1d1o
-
-
 
 // Amplify.configure({
 //   Auth: {
